@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function verifyInputType(inputType) {
+function verifyTextInputType(inputType) {
   let type = "text";
   switch (inputType) {
     case "email":
@@ -32,12 +32,33 @@ const useInputChange = (customValue, callback) => {
     handleChange: handleChange,
   };
 };
-const SurveyInput = (props) => {
+const SurveyRadioInput = (props) => {
+  const { object } = props;
+  return (
+    <div>
+      {object.options.map((option, index) => {
+        return (
+          <div key={`${object.type}-${index}`}>
+            <input
+              type={object.type}
+              value={option.value}
+              name={object.name}
+              id={`${object.name}-${index}`}
+            />
+            <label htmlFor={`${object.name}-${index}`}>{option.label}</label>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const SurveyYTextInput = (props) => {
   const { value, handleChange } = useInputChange(
     props.defaultValue,
     props.triggerCallback
   );
-  const inputType = verifyInputType(props.type);
+  const inputType = verifyTextInputType(props.type);
   const inputProps = {
     className: "form-control",
     onChange: handleChange,
@@ -58,6 +79,24 @@ const myInputs = [
   { name: "full_name", type: "text", placeholder: "Yor full name" },
   { name: "email", type: "email", placeholder: "hi@gmail.com" },
   { name: "message", type: "textarea", placeholder: "message" },
+  {
+    name: "mySingleChoice",
+    type: "checkbox",
+    options: [
+      { value: 1, label: "Label 1" },
+      { value: "asd", label: "Label asd" },
+      { value: "sdf", label: "Label sdf" },
+    ],
+  },
+  {
+    name: "mySingleChoice",
+    type: "radio",
+    options: [
+      { value: 1, label: "Label 1" },
+      { value: "asd", label: "Label asd" },
+      { value: "sdf", label: "Label sdf" },
+    ],
+  },
 ];
 
 const App = (props) => {
@@ -86,8 +125,10 @@ const App = (props) => {
 
       <form onSubmit={handleSubmit}>
         {myInputs.map((obj, index) => {
-          return (
-            <SurveyInput
+          return obj.type === "radio" || obj.type === "checkbox" ? (
+            <SurveyRadioInput object={obj} key={`input-${index}`} />
+          ) : (
+            <SurveyYTextInput
               type={obj.type}
               triggerCallback={callBack}
               placeholder={obj.placeholder}
