@@ -1,24 +1,87 @@
 import React, { useState } from "react";
 
-function LikeBtn(props) {
-  const [value, setValue] = useState(0);
-  console.log(props, "props");
-  console.log(props.children);
+function verifyInputType(inputType) {
+  let type = "text";
+  switch (inputType) {
+    case "email":
+      type = "email";
+      break;
+    case "number":
+      type = "number";
+      break;
+    case "textarea":
+      type = "textarea";
+      break;
+    default:
+      type = "text";
+  }
+  return type;
+}
 
-  const addOne = () => {
-    setValue(value + 1);
+const SurveyInput = (props) => {
+  const [name, setName] = useState("");
+
+  const handleChange = (event) => {
+    setName(event.target.value);
   };
-  return <button onClick={addOne}>Like {value}</button>;
-}
+  const inputType = verifyInputType(props.type);
+  const inputProps = {
+    className: "form-control",
+    onChange: handleChange,
+    value: name,
+    type: inputType,
+    placeholder: "Your name",
+    placeholder: props.placeholder ? props.placeholder : "Your text",
+    name: props.name ? props.name : `${inputType}_${props.key}`,
+  };
+  return inputType === "textarea" ? (
+    //   <textarea
+    //     {...inputProps}
+    //     // className={inputProps.className}
+    //     onChange={handleChange}
+    //     value={name}
+    //     type={inputType}
+    //     placeholder='Your Name'
+    //     name='full_name'
+    //   />
+    // ) : (
+    //   <input
+    //     className='form-control'
+    //     onChange={handleChange}
+    //     value={name}
+    //     type={inputType}
+    //     placeholder='Your Name'
+    //     name='full_name'
+    //   />
+    /////////deconstructing/////
+    <textarea {...inputProps} />
+  ) : (
+    <input {...inputProps} />
+  );
+};
 
-function App(props) {
-  return <div>
-      <LikeBtn url='https://cfe.sh' >lol<LikeBtn />
-      <LikeBtn />
-      <LikeBtn />
-      <LikeBtn />
+const App = (props) => {
+  return (
+    <div className='col-10 mx-auto text-center'>
+      <h1>Hello There</h1>
+      <SurveyInput placeholder='My Placeholder' name='first_name' />
+      <SurveyInput
+        type='textarea'
+        placeholder='My Placeholder'
+        name='first_name'
+      />
+      <SurveyInput
+        type='number'
+        placeholder='My Placeholder'
+        name='first_name'
+      />
+      <SurveyInput
+        type='email'
+        placeholder='My Placeholder'
+        name='first_name'
+      />
     </div>
-  
-}
+  );
+};
 
 export default App;
