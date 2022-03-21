@@ -17,69 +17,90 @@ function verifyInputType(inputType) {
   }
   return type;
 }
-
-const SurveyInput = (props) => {
-  const [name, setName] = useState("");
-
+const useInputChange = (customValue, callback) => {
+  const [value, setValue] = useState(customValue ? customValue : "");
   const handleChange = (event) => {
-    setName(event.target.value);
+    let newValue = event.target.value;
+    setValue(newValue);
+    if (callback) {
+      callback(event.target.name, newValue);
+    }
   };
+
+  return {
+    value: value,
+    handleChange: handleChange,
+  };
+};
+const SurveyInput = (props) => {
+  const { value, handleChange } = useInputChange(
+    props.defaultValue,
+    props.triggerCallback
+  );
   const inputType = verifyInputType(props.type);
   const inputProps = {
     className: "form-control",
     onChange: handleChange,
-    value: name,
+    value: value,
     type: inputType,
     placeholder: "Your name",
     placeholder: props.placeholder ? props.placeholder : "Your text",
     name: props.name ? props.name : `${inputType}_${props.key}`,
   };
   return inputType === "textarea" ? (
-    //   <textarea
-    //     {...inputProps}
-    //     // className={inputProps.className}
-    //     onChange={handleChange}
-    //     value={name}
-    //     type={inputType}
-    //     placeholder='Your Name'
-    //     name='full_name'
-    //   />
-    // ) : (
-    //   <input
-    //     className='form-control'
-    //     onChange={handleChange}
-    //     value={name}
-    //     type={inputType}
-    //     placeholder='Your Name'
-    //     name='full_name'
-    //   />
-    /////////deconstructing/////
     <textarea {...inputProps} />
   ) : (
     <input {...inputProps} />
   );
 };
 
+const myInputs = [
+  { name: "full_name", type: "text", placeholder: "Yor full name" },
+  { name: "email", type: "email", placeholder: "hi@gmail.com" },
+  { name: "message", type: "textarea", placeholder: "message" },
+];
+
 const App = (props) => {
+  const [inlineData, setInlineData] = useState({});
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    event.persist();
+
+    let formData = new FormData();
+    for (let formInput of event.target.elements) {
+      if (formInput.name !== "save_btn") {
+        formData.append(formInput.name, formInput.value);
+      }
+    }
+  };
+
+  const callBack = (name, value) => {
+    inlineData[name] = value;
+    setInlineData(inlineData);
+    console.log(inlineData);
+  };
+
   return (
     <div className='col-10 mx-auto text-center'>
       <h1>Hello There</h1>
-      <SurveyInput placeholder='My Placeholder' name='first_name' />
-      <SurveyInput
-        type='textarea'
-        placeholder='My Placeholder'
-        name='first_name'
-      />
-      <SurveyInput
-        type='number'
-        placeholder='My Placeholder'
-        name='first_name'
-      />
-      <SurveyInput
-        type='email'
-        placeholder='My Placeholder'
-        name='first_name'
-      />
+
+      <form onSubmit={handleSubmit}>
+        {myInputs.map((obj, index) => {
+          return (
+            <SurveyInput
+              type={obj.type}
+              triggerCallback={callBack}
+              placeholder={obj.placeholder}
+              defaultValue={obj.defaultValue}
+              name={obj.name}
+              key={`input-${index}`}
+            />
+          );
+        })}
+        <button type='input' className='btn btn-primary my-5' name='save_btn'>
+          Save
+        </button>
+      </form>
     </div>
   );
 };
